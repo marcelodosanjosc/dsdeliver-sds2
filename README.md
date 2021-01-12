@@ -2,7 +2,7 @@
 
 Criar um app de pedidos e localização.
 Uma Semana desenvolvimento de projeto de Delivery de pedido.
-Semana de muito aprendizado e realizações.
+Usado mapa para localização da entrega do pedido, clicando no produto com a descrições do mesmo no final tem o total de produtos e valor a pagar .
 
 ##### Link:-[Ds Delivery](https://dsdelivermarcelocaldasdevops.netlify.app/) 
  
