@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "front-mobile",
-    "slug": "front-mobile",
+    "name": "Ds Delivery",
+    "slug": "Ds-Delivery",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#DA5C5C"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -16,17 +16,12 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#DA5C5C"
+      },
+      "package": "com.marcelocaldasdevops.dsdelivery"
     }
   }
 }
