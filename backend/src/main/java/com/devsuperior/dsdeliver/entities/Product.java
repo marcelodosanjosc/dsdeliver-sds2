@@ -6,15 +6,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_product")
 public class Product implements Serializable {
-	
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -22,18 +23,21 @@ public class Product implements Serializable {
 	private Double price;
 	private String description;
 	private String imageUri;
-	
+
+	@ManyToOne
+	@JoinColumn(name = "category_id")
+	private Category category;
+
 	public Product() {
-		
 	}
 
-	public Product(Long id, String name, Double price, String description, String imageUri) {
-		super();
+	public Product(Long id, String name, Double price, String description, String imageUri, Category category) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
 		this.description = description;
 		this.imageUri = imageUri;
+		this.category = category;
 	}
 
 	public Long getId() {
@@ -76,6 +80,14 @@ public class Product implements Serializable {
 		this.imageUri = imageUri;
 	}
 
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -100,6 +112,4 @@ public class Product implements Serializable {
 			return false;
 		return true;
 	}
-	
-	
 }

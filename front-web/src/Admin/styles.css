@@ -1,0 +1,126 @@
+.admin-container {
+  padding: 40px 20px;
+  background-color: var(--light-color);
+  min-height: calc(100vh - 120px);
+  display: flex;
+  justify-content: center;
+}
+
+.admin-content {
+  width: 100%;
+  max-width: 900px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.admin-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.admin-tab-btn {
+  padding: 10px 25px;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+  background-color: #FFF;
+  color: var(--primary-color);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.admin-tab-btn.active {
+  background-color: var(--primary-color);
+  color: #FFF;
+}
+
+.admin-card {
+  background-color: #FFF;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.admin-form-group {
+  margin-bottom: 18px;
+}
+
+.admin-form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: var(--secondary-color);
+}
+
+.admin-input, .admin-select, .admin-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #DCE2E6;
+  border-radius: 6px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.admin-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.admin-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-btn-primary {
+  background-color: var(--primary-color);
+  color: #FFF;
+}
+
+.admin-btn-secondary {
+  background-color: #9E9E9E;
+  color: #FFF;
+}
+
+.admin-btn-danger {
+  background-color: #E74C3C;
+  color: #FFF;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.admin-table th, .admin-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E6E6E6;
+}
+
+.admin-table th {
+  background-color: #F8F9FA;
+  color: var(--secondary-color);
+  font-weight: bold;
+}

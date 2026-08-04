@@ -12,15 +12,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_order")
 public class Order implements Serializable {
-	
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -29,28 +29,38 @@ public class Order implements Serializable {
 	private Double longitude;
 	private Instant moment;
 	private OrderStatus status;
-	
+
+	@ManyToOne
+	@JoinColumn(name = "client_id")
+	private User client;
+
 	@ManyToMany
 	@JoinTable(name = "tb_order_product",
 		joinColumns = @JoinColumn(name = "order_id"),
 		inverseJoinColumns = @JoinColumn(name = "product_id")
-			)
-	
+	)
 	private Set<Product> products = new HashSet<>();
-	
+
 	public Order() {
-		
 	}
 
 	public Order(Long id, String address, Double latitude, Double longitude, Instant moment, OrderStatus status) {
-		super();
 		this.id = id;
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.moment = moment;
 		this.status = status;
-		
+	}
+
+	public Order(Long id, String address, Double latitude, Double longitude, Instant moment, OrderStatus status, User client) {
+		this.id = id;
+		this.address = address;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.moment = moment;
+		this.status = status;
+		this.client = client;
 	}
 
 	public Long getId() {
@@ -100,13 +110,20 @@ public class Order implements Serializable {
 	public void setStatus(OrderStatus status) {
 		this.status = status;
 	}
-	
+
+	public User getClient() {
+		return client;
+	}
+
+	public void setClient(User client) {
+		this.client = client;
+	}
+
 	public Double getTotal() {
 		double sum = 0.0;
-		for(Product p : products) {
+		for (Product p : products) {
 			sum += p.getPrice();
 		}
-		
 		return sum;
 	}
 
@@ -138,8 +155,4 @@ public class Order implements Serializable {
 			return false;
 		return true;
 	}
-
-	
-	
-	
 }

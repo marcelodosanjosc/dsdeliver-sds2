@@ -13,44 +13,58 @@ import com.devsuperior.dsdeliver.dto.ProductDTO;
 import com.devsuperior.dsdeliver.entities.Order;
 import com.devsuperior.dsdeliver.entities.OrderStatus;
 import com.devsuperior.dsdeliver.entities.Product;
+import com.devsuperior.dsdeliver.entities.User;
 import com.devsuperior.dsdeliver.repositories.OrderRepository;
 import com.devsuperior.dsdeliver.repositories.ProductRepository;
+import com.devsuperior.dsdeliver.repositories.UserRepository;
 
 @Service
 public class OrderService {
-	
+
 	@Autowired
 	private OrderRepository repository;
-	
+
 	@Autowired
-	private ProductRepository productRepository; 
-	
+	private ProductRepository productRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+
 	@Transactional(readOnly = true)
-	public List<OrderDTO> findAll(){
+	public List<OrderDTO> findAll() {
 		List<Order> list = repository.findOrdersWithProducts();
-		return list.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());
+		return list.stream().map(OrderDTO::new).collect(Collectors.toList());
 	}
-	
-	
+
+	@Transactional(readOnly = true)
+	public List<OrderDTO> findMyOrders(String clientEmail) {
+		List<Order> list = repository.findMyOrders(clientEmail);
+		return list.stream().map(OrderDTO::new).collect(Collectors.toList());
+	}
+
 	@Transactional
-	public OrderDTO insert(OrderDTO dto){
-		Order order = new Order(null, dto.getAddress(), dto.getLatitude(), dto.getLongitude(), 
+	public OrderDTO insert(OrderDTO dto, String clientEmail) {
+		Order order = new Order(null, dto.getAddress(), dto.getLatitude(), dto.getLongitude(),
 				Instant.now(), OrderStatus.PENDING);
+
+		if (clientEmail != null) {
+			User client = userRepository.findByEmail(clientEmail).orElse(null);
+			order.setClient(client);
+		}
+
 		for (ProductDTO p : dto.getProducts()) {
-			Product product = productRepository.getOne(p.getId());
+			Product product = productRepository.getReferenceById(p.getId());
 			order.getProducts().add(product);
-			
 		}
 		order = repository.save(order);
 		return new OrderDTO(order);
 	}
-	
+
 	@Transactional
-	public OrderDTO setDelivered(Long id){
-		Order order = repository.getOne(id);
+	public OrderDTO setDelivered(Long id) {
+		Order order = repository.getReferenceById(id);
 		order.setStatus(OrderStatus.DELIVERED);
 		order = repository.save(order);
 		return new OrderDTO(order);
-				
 	}
 }

@@ -5,36 +5,37 @@ import java.io.Serializable;
 import com.devsuperior.dsdeliver.entities.Product;
 
 public class ProductDTO implements Serializable {
-	
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private Long id;
 	private String name;
 	private Double price;
 	private String description;
 	private String imageUri;
-	
+	private CategoryDTO category;
+
 	public ProductDTO() {
-		
 	}
 
-	public ProductDTO(Long id, String name, Double price, String description, String imageUri) {
-	
+	public ProductDTO(Long id, String name, Double price, String description, String imageUri, CategoryDTO category) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
 		this.description = description;
 		this.imageUri = imageUri;
+		this.category = category;
 	}
-	
+
 	public ProductDTO(Product entity) {
-	
 		id = entity.getId();
 		name = entity.getName();
 		price = entity.getPrice();
 		description = entity.getDescription();
 		imageUri = entity.getImageUri();
+		if (entity.getCategory() != null) {
+			category = new CategoryDTO(entity.getCategory());
+		}
 	}
 
 	public Long getId() {
@@ -76,7 +77,12 @@ public class ProductDTO implements Serializable {
 	public void setImageUri(String imageUri) {
 		this.imageUri = imageUri;
 	}
-	
-	 
-	
+
+	public CategoryDTO getCategory() {
+		return category;
+	}
+
+	public void setCategory(CategoryDTO category) {
+		this.category = category;
+	}
 }
