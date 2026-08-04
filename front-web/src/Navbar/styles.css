@@ -22,18 +22,66 @@ a {
 }
 
 .main-navbar{
-height: 70px;
-background: var(--primary-color);
-padding-left: 45px;
-display: flex;
-align-items:center;
+  height: 70px;
+  background: var(--primary-color);
+  padding: 0 45px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
 }
 
 .logo-text{
-font-weight: bold;
-font-size: 24px;
-line-height: 33px;
-letter-spacing: -0.015em;
-color: var(--light-color);
-margin-left: 15px;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 33px;
+  letter-spacing: -0.015em;
+  color: var(--light-color);
+  margin-left: 15px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #FFF;
+  font-weight: bold;
+  font-size: 15px;
+  transition: opacity 0.2s;
+}
+
+.nav-link:hover {
+  opacity: 0.8;
+}
+
+.nav-user-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 15px;
+  color: #FFF;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.nav-btn {
+  background-color: #FFF;
+  color: var(--primary-color);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #fcf2f2;
 }
