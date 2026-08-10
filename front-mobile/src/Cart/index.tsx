@@ -15,7 +15,11 @@ import { useCart } from '../contexts/CartContext';
 import { createOrder } from '../api';
 import { formatPrice } from '../OrderCard';
 import OsmMap from '../components/OsmMap';
-import { getCurrentDeviceLocation } from '../services/locationService';
+import {
+  getCurrentDeviceLocation,
+  reverseGeocodeCoords,
+  geocodeAddress,
+} from '../services/locationService';
 import { LocationCoords } from '../types';
 
 const DEFAULT_COORDS: LocationCoords = {
@@ -24,29 +28,59 @@ const DEFAULT_COORDS: LocationCoords = {
 };
 
 export default function Cart() {
-  const { items, updateQuantity, removeFromCart, clearCart, totalAmount } = useCart();
+  const { items, updateQuantity, clearCart, totalAmount } = useCart();
   const [address, setAddress] = useState('');
   const [coords, setCoords] = useState<LocationCoords>(DEFAULT_COORDS);
   const [loadingGps, setLoadingGps] = useState(false);
+  const [loadingAddress, setLoadingAddress] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const navigation = useNavigation<any>();
 
+  // 1. Obter GPS + Auto-preenchimento do Endereço
   const handleGetGpsLocation = async () => {
     try {
       setLoadingGps(true);
       const userCoords = await getCurrentDeviceLocation();
-      if (userCoords) {
-        setCoords(userCoords);
-        Alert.alert('Sucesso', 'Localização GPS capturada no mapa!');
-      } else {
-        Alert.alert('GPS Indisponível', 'Não foi possível obter a localização. Verifique as permissões de GPS.');
+      setCoords(userCoords);
+
+      // Auto-preenche o endereço por geocodificação reversa
+      const autoAddress = await reverseGeocodeCoords(userCoords);
+      if (autoAddress) {
+        setAddress(autoAddress);
       }
     } catch (err) {
       console.error(err);
-      Alert.alert('Erro', 'Falha ao obter localização.');
+      Alert.alert('Atenção', 'Não foi possível detectar o endereço automaticamente.');
     } finally {
       setLoadingGps(false);
+    }
+  };
+
+  // 2. Quando o usuário toca ou arrasta o pino no mapa -> atualiza o endereço
+  const handleSelectMapCoords = async (newCoords: LocationCoords) => {
+    setCoords(newCoords);
+    const autoAddress = await reverseGeocodeCoords(newCoords);
+    if (autoAddress) {
+      setAddress(autoAddress);
+    }
+  };
+
+  // 3. Quando o usuário digita o endereço e clica em Buscar -> move o pino no mapa
+  const handleSearchAddressOnMap = async () => {
+    if (!address.trim()) return;
+    try {
+      setLoadingAddress(true);
+      const foundCoords = await geocodeAddress(address);
+      if (foundCoords) {
+        setCoords(foundCoords);
+      } else {
+        Alert.alert('Não encontrado', 'Endereço não localizado no mapa.');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingAddress(false);
     }
   };
 
@@ -86,7 +120,9 @@ export default function Cart() {
       );
     } catch (error: any) {
       console.error(error);
-      const msg = error.response?.data?.message || 'Houve um erro ao enviar o pedido. Tente novamente.';
+      const msg =
+        error.response?.data?.message ||
+        'Houve um erro ao enviar o pedido. Tente novamente.';
       Alert.alert('Erro no pedido', msg);
     } finally {
       setSubmitting(false);
@@ -97,7 +133,10 @@ export default function Cart() {
     <View style={styles.container}>
       <Header />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.sectionTitle}>Seu Carrinho</Text>
 
         {items.length === 0 ? (
@@ -152,13 +191,28 @@ export default function Cart() {
             <Text style={styles.sectionTitle}>Local de Entrega</Text>
             <View style={styles.card}>
               <Text style={styles.inputLabel}>Endereço Completo</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Ex: Av. Paulista, 1500 - Apto 32"
-                placeholderTextColor="#9E9E9E"
-                value={address}
-                onChangeText={setAddress}
-              />
+              <View style={styles.addressInputRow}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex: Av. Paulista, 1500 - Apto 32"
+                  placeholderTextColor="#9E9E9E"
+                  value={address}
+                  onChangeText={setAddress}
+                  onSubmitEditing={handleSearchAddressOnMap}
+                />
+                <TouchableOpacity
+                  style={styles.searchButton}
+                  onPress={handleSearchAddressOnMap}
+                  disabled={loadingAddress}
+                  activeOpacity={0.8}
+                >
+                  {loadingAddress ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <Text style={styles.searchButtonText}>Buscar</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
 
               <TouchableOpacity
                 style={styles.gpsButton}
@@ -169,19 +223,21 @@ export default function Cart() {
                 {loadingGps ? (
                   <ActivityIndicator size="small" color="#DA5C5C" />
                 ) : (
-                  <Text style={styles.gpsButtonText}>📍 Obter Minha Localização (GPS)</Text>
+                  <Text style={styles.gpsButtonText}>
+                    📍 Auto-preencher com minha Localização (GPS)
+                  </Text>
                 )}
               </TouchableOpacity>
 
               <Text style={styles.mapHint}>
-                Confirme o ponto no mapa (toque para ajustar):
+                Toque ou arraste o pino no mapa para ajustar o endereço:
               </Text>
 
               <OsmMap
                 coords={coords}
                 interactive={true}
-                onSelectCoords={setCoords}
-                height={200}
+                onSelectCoords={handleSelectMapCoords}
+                height={210}
                 title="Ponto de Entrega"
                 description={address || 'Selecione o local no mapa'}
               />
@@ -336,7 +392,13 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans_700Bold',
     marginBottom: 6,
   },
+  addressInputRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 10,
+  },
   input: {
+    flex: 1,
     backgroundColor: '#FAFAFA',
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -346,14 +408,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#263238',
     fontFamily: 'OpenSans_400Regular',
-    marginBottom: 10,
+  },
+  searchButton: {
+    backgroundColor: '#263238',
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchButtonText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+    fontFamily: 'OpenSans_700Bold',
   },
   gpsButton: {
     backgroundColor: '#FFF0F0',
     borderWidth: 1,
     borderColor: '#FFD6D6',
     borderRadius: 8,
-    paddingVertical: 10,
+    paddingVertical: 11,
     alignItems: 'center',
     marginBottom: 12,
   },

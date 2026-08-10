@@ -38,6 +38,12 @@ public class OrderController {
 		return ResponseEntity.ok().body(list);
 	}
 
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<OrderDTO> findById(@PathVariable Long id) {
+		OrderDTO dto = service.findById(id);
+		return ResponseEntity.ok().body(dto);
+	}
+
 	@PostMapping
 	public ResponseEntity<OrderDTO> insert(@RequestBody OrderDTO dto, Principal principal) {
 		String email = (principal != null) ? principal.getName() : null;
@@ -50,6 +56,13 @@ public class OrderController {
 	@PutMapping(value = "/{id}/delivered")
 	public ResponseEntity<OrderDTO> setDelivered(@PathVariable Long id) {
 		OrderDTO dto = service.setDelivered(id);
+		return ResponseEntity.ok().body(dto);
+	}
+
+	@PutMapping(value = "/{id}/cancel")
+	public ResponseEntity<OrderDTO> cancel(@PathVariable Long id, Principal principal) {
+		String email = (principal != null) ? principal.getName() : null;
+		OrderDTO dto = service.cancel(id, email);
 		return ResponseEntity.ok().body(dto);
 	}
 }

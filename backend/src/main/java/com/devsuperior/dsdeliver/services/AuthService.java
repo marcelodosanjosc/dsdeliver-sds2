@@ -15,6 +15,7 @@ import com.devsuperior.dsdeliver.dto.UserDTO;
 import com.devsuperior.dsdeliver.entities.Role;
 import com.devsuperior.dsdeliver.entities.User;
 import com.devsuperior.dsdeliver.repositories.UserRepository;
+import com.devsuperior.dsdeliver.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class AuthService {
@@ -44,5 +45,15 @@ public class AuthService {
 		String token = tokenProvider.generateToken(user.getEmail(), roles);
 
 		return new TokenDTO(token, new UserDTO(user));
+	}
+
+	@Transactional(readOnly = true)
+	public UserDTO getAuthenticatedUser(String email) {
+		if (email == null) {
+			throw new ResourceNotFoundException("No authenticated user found");
+		}
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + email));
+		return new UserDTO(user);
 	}
 }

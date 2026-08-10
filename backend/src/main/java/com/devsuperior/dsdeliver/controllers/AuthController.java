@@ -1,9 +1,11 @@
 package com.devsuperior.dsdeliver.controllers;
 
 import java.net.URI;
+import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,5 +41,12 @@ public class AuthController {
 		URI uri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
 				.buildAndExpand(userDto.getId()).toUri();
 		return ResponseEntity.created(uri).body(userDto);
+	}
+
+	@GetMapping(value = "/me")
+	public ResponseEntity<UserDTO> getMe(Principal principal) {
+		String email = (principal != null) ? principal.getName() : null;
+		UserDTO userDto = authService.getAuthenticatedUser(email);
+		return ResponseEntity.ok().body(userDto);
 	}
 }

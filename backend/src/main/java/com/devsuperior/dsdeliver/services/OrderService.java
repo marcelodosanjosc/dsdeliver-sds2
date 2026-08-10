@@ -17,6 +17,7 @@ import com.devsuperior.dsdeliver.entities.User;
 import com.devsuperior.dsdeliver.repositories.OrderRepository;
 import com.devsuperior.dsdeliver.repositories.ProductRepository;
 import com.devsuperior.dsdeliver.repositories.UserRepository;
+import com.devsuperior.dsdeliver.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class OrderService {
@@ -38,8 +39,18 @@ public class OrderService {
 
 	@Transactional(readOnly = true)
 	public List<OrderDTO> findMyOrders(String clientEmail) {
+		if (clientEmail == null) {
+			throw new ResourceNotFoundException("No authenticated client provided");
+		}
 		List<Order> list = repository.findMyOrders(clientEmail);
 		return list.stream().map(OrderDTO::new).collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public OrderDTO findById(Long id) {
+		Order order = repository.findByIdWithProducts(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+		return new OrderDTO(order);
 	}
 
 	@Transactional
@@ -62,8 +73,23 @@ public class OrderService {
 
 	@Transactional
 	public OrderDTO setDelivered(Long id) {
-		Order order = repository.getReferenceById(id);
+		Order order = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 		order.setStatus(OrderStatus.DELIVERED);
+		order = repository.save(order);
+		return new OrderDTO(order);
+	}
+
+	@Transactional
+	public OrderDTO cancel(Long id, String email) {
+		Order order = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+
+		if (order.getStatus() == OrderStatus.DELIVERED) {
+			throw new IllegalArgumentException("Cannot cancel an already delivered order");
+		}
+
+		order.setStatus(OrderStatus.CANCELED);
 		order = repository.save(order);
 		return new OrderDTO(order);
 	}
