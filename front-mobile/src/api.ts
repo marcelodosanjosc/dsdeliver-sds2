@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthResponse, Category, Order, OrderPayload, Product, User } from './types';
 
-const API_URL = 'https://dsdeliver-backend-ib5v.onrender.com';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8080';
 
 const api = axios.create({
   baseURL: API_URL,
