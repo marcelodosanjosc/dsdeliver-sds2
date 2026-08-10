@@ -5,7 +5,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import Header from '../Header';
 
 function Home(){
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     
     const handlenOnPress = () => {
        navigation.navigate('Orders');     

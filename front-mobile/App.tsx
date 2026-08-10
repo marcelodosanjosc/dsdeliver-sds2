@@ -4,6 +4,8 @@ import { useFonts, OpenSans_400Regular, OpenSans_700Bold } from '@expo-google-fo
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import Routes from './src/Routes';
+import { AuthProvider } from './src/contexts/AuthContext';
+import { CartProvider } from './src/contexts/CartContext';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -24,10 +26,14 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <Routes />
-      <StatusBar style="auto" />
-    </View>
+    <AuthProvider>
+      <CartProvider>
+        <View style={styles.container}>
+          <Routes />
+          <StatusBar style="auto" />
+        </View>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
